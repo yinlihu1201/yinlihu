@@ -12,9 +12,9 @@
 	</parent>
 	
 	<modules>
-	   <module>yinlihu-web</module>
-	   <module>yinlihu-service</module>
-	   <module>yinlihu-inf</module>
+	   <module>../yinlihu-web</module>
+	   <module>../yinlihu-service</module>
+	   <module>../yinlihu-inf</module>
 	</modules>
 	
 	<properties>

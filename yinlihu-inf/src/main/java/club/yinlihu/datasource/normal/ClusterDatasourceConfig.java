@@ -1,4 +1,4 @@
-package club.yinlihu.datasource;
+package club.yinlihu.datasource.normal;
 
 import javax.sql.DataSource;
 
@@ -15,21 +15,21 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 /**
- *  数据源read配置
+ *  数据源cluster配置
  * @author Administrator
  *
  */
-@Configuration
-@MapperScan(basePackages = "club.yinlihu.mapper.read", sqlSessionFactoryRef = "readSqlSessionFactory")
-public class ReadDatasourceConfig {
+// @Configuration
+// @MapperScan(basePackages = "club.yinlihu.mapper.cluster", sqlSessionFactoryRef = "clusterSqlSessionFactory")
+public class ClusterDatasourceConfig {
 	
 	/**
 	 * 数据源配置
 	 * @return
 	 */
-	@Bean(name="readDatasource")
-	@ConfigurationProperties(prefix = "spring.datasource.read")
-	public DataSource readDatasource() {
+	@Bean(name="clusterDatasource")
+	@ConfigurationProperties(prefix = "spring.datasource.cluster")
+	public DataSource clusterDatasource() {
 		return DataSourceBuilder.create().build();
 	}
 	
@@ -39,13 +39,13 @@ public class ReadDatasourceConfig {
 	 * @return
 	 * @throws Exception
 	 */
-	@Bean(name = "readSqlSessionFactory")
-	public SqlSessionFactory readSqlSessionFactory(@Qualifier("readDatasource") DataSource dataSource) throws Exception{
+	@Bean(name = "clusterSqlSessionFactory")
+	public SqlSessionFactory clusterSqlSessionFactory(@Qualifier("clusterDatasource") DataSource dataSource) throws Exception{
 		SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
 		bean.setDataSource(dataSource);
 		bean.setMapperLocations(
                 // 设置mybatis的xml所在位置
-                new PathMatchingResourcePatternResolver().getResources("classpath*:mybatis/mapper/read/*.xml"));
+                new PathMatchingResourcePatternResolver().getResources("classpath*:mybatis/mapper/cluster/*.xml"));
 		return bean.getObject();
 	}
 	
@@ -53,8 +53,8 @@ public class ReadDatasourceConfig {
 	 * 事务配置
 	 * @return
 	 */
-	@Bean(name = "readTransactionManager")
-	public DataSourceTransactionManager readTransactionManager(@Qualifier("readDatasource") DataSource dataSource) {
+	@Bean(name = "clusterTransactionManager")
+	public DataSourceTransactionManager clusterTransactionManager(@Qualifier("clusterDatasource") DataSource dataSource) {
 		return new DataSourceTransactionManager(dataSource);
 	}
 	
@@ -64,8 +64,8 @@ public class ReadDatasourceConfig {
 	 * @param dataSource
 	 * @return
 	 */
-	@Bean(name = "readSqlSessionTemplate")
-	public SqlSessionTemplate readSqlSessionTemplate(@Qualifier("readSqlSessionFactory") SqlSessionFactory sqlSessionFactory) {
+	@Bean(name = "clusterSqlSessionTemplate")
+	public SqlSessionTemplate clusterSqlSessionTemplate(@Qualifier("clusterSqlSessionFactory") SqlSessionFactory sqlSessionFactory) {
 		return new SqlSessionTemplate(sqlSessionFactory);
 	}
 }

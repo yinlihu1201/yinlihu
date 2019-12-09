@@ -1,4 +1,4 @@
-package club.yinlihu.datasource;
+package club.yinlihu.datasource.normal;
 
 import javax.sql.DataSource;
 
@@ -15,22 +15,22 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 /**
- *  数据源write配置
+ *  数据源master配置
  * @author Administrator
  *
  */
-@Configuration
-@MapperScan(basePackages = "club.yinlihu.mapper", sqlSessionFactoryRef = "writeSqlSessionFactory")
-public class WriteDatasourceConfig {
+// @Configuration
+// @MapperScan(basePackages = "club.yinlihu.mapper", sqlSessionFactoryRef = "masterSqlSessionFactory")
+public class MasterDatasourceConfig {
 	
 	/**
 	 * 数据源配置
 	 * @return
 	 */
-	@Bean(name="writeDatasource")
-	@ConfigurationProperties(prefix = "spring.datasource.write")
+	@Bean(name="masterDatasource")
+	@ConfigurationProperties(prefix = "spring.datasource.master")
 	@Primary
-	public DataSource writeDatasource() {
+	public DataSource masterDatasource() {
 		return DataSourceBuilder.create().build();
 	}
 	
@@ -40,9 +40,9 @@ public class WriteDatasourceConfig {
 	 * @return
 	 * @throws Exception
 	 */
-	@Bean(name = "writeSqlSessionFactory")
+	@Bean(name = "masterSqlSessionFactory")
 	@Primary
-	public SqlSessionFactory writeSqlSessionFactory(@Qualifier("writeDatasource") DataSource dataSource) throws Exception{
+	public SqlSessionFactory masterSqlSessionFactory(@Qualifier("masterDatasource") DataSource dataSource) throws Exception{
 		SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
 		bean.setDataSource(dataSource);
 		bean.setMapperLocations(
@@ -55,8 +55,8 @@ public class WriteDatasourceConfig {
 	 * 事务配置
 	 * @return
 	 */
-	/*@Bean(name = "writeTransactionManager")
-	public DataSourceTransactionManager writeTransactionManager(@Qualifier("writeDatasource") DataSource dataSource) {
+	/*@Bean(name = "masterTransactionManager")
+	public DataSourceTransactionManager masterTransactionManager(@Qualifier("masterDatasource") DataSource dataSource) {
 		return new DataSourceTransactionManager(dataSource);
 	}*/
 	
@@ -66,9 +66,9 @@ public class WriteDatasourceConfig {
 	 * @param dataSource
 	 * @return
 	 */
-	@Bean(name = "writeSqlSessionTemplate")
+	@Bean(name = "masterSqlSessionTemplate")
 	@Primary
-	public SqlSessionTemplate writeSqlSessionTemplate(@Qualifier("writeSqlSessionFactory") SqlSessionFactory sqlSessionFactory) {
+	public SqlSessionTemplate masterSqlSessionTemplate(@Qualifier("masterSqlSessionFactory") SqlSessionFactory sqlSessionFactory) {
 		return new SqlSessionTemplate(sqlSessionFactory);
 	}
 }

@@ -9,5 +9,9 @@
     <select id="findByName" resultType="club.yinlihu.entity.User">
         select * from user where name = #{name}
     </select>
- 
+
+    <select id="findByName2" resultType="club.yinlihu.entity.User">
+        select * from user where name = #{name}
+    </select>
+
 </mapper>
