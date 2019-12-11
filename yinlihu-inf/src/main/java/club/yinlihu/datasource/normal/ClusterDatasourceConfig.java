@@ -27,8 +27,8 @@ public class ClusterDatasourceConfig {
 	 * 数据源配置
 	 * @return
 	 */
-	@Bean(name="clusterDatasource")
-	@ConfigurationProperties(prefix = "spring.datasource.cluster")
+	// @Bean(name="clusterDatasource")
+	// @ConfigurationProperties(prefix = "spring.datasource.cluster")
 	public DataSource clusterDatasource() {
 		return DataSourceBuilder.create().build();
 	}
@@ -39,7 +39,7 @@ public class ClusterDatasourceConfig {
 	 * @return
 	 * @throws Exception
 	 */
-	@Bean(name = "clusterSqlSessionFactory")
+	// @Bean(name = "clusterSqlSessionFactory")
 	public SqlSessionFactory clusterSqlSessionFactory(@Qualifier("clusterDatasource") DataSource dataSource) throws Exception{
 		SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
 		bean.setDataSource(dataSource);
@@ -53,7 +53,7 @@ public class ClusterDatasourceConfig {
 	 * 事务配置
 	 * @return
 	 */
-	@Bean(name = "clusterTransactionManager")
+	// @Bean(name = "clusterTransactionManager")
 	public DataSourceTransactionManager clusterTransactionManager(@Qualifier("clusterDatasource") DataSource dataSource) {
 		return new DataSourceTransactionManager(dataSource);
 	}
@@ -64,7 +64,7 @@ public class ClusterDatasourceConfig {
 	 * @param dataSource
 	 * @return
 	 */
-	@Bean(name = "clusterSqlSessionTemplate")
+	// @Bean(name = "clusterSqlSessionTemplate")
 	public SqlSessionTemplate clusterSqlSessionTemplate(@Qualifier("clusterSqlSessionFactory") SqlSessionFactory sqlSessionFactory) {
 		return new SqlSessionTemplate(sqlSessionFactory);
 	}

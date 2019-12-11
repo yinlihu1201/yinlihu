@@ -12,8 +12,8 @@ public class UserServiceImpl {
 
 	public void getUser() {
 		User user = userMapper.findByName("asdf");
-		System.out.println(user.getName());
+		System.out.println(user.getId());
 		User findByName = userMapper.findByName2("user2");
-		System.out.println(findByName.getName());
+		System.out.println(findByName.getId());
 	}
 }

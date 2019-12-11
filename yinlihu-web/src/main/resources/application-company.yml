@@ -1,0 +1,21 @@
+server:
+    port: 80
+    
+
+spring:
+    datasource:
+        master:
+            username: fabu
+            password: 2unDhOR018lX
+            jdbc-url: jdbc:mysql://10.244.219.119:3306/demo?useUnicode=true&characterEncoding=utf-8&useSSL=false
+            driver-class-name: com.mysql.jdbc.Driver
+        cluster:
+            username: fabu
+            password: 2unDhOR018lX
+            jdbc-url: jdbc:mysql://10.244.219.119:3306/demo2?useUnicode=true&characterEncoding=utf-8&useSSL=false
+            driver-class-name: com.mysql.jdbc.Driver
+        
+mybatis-plus:
+    type-aliases-package: club.yinlihu.entity
+    global-config:
+        refresh-mapper: true

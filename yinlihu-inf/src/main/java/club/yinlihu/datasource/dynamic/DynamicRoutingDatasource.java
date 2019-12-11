@@ -14,7 +14,11 @@ public class DynamicRoutingDatasource extends AbstractRoutingDataSource {
     @Override
     protected Object determineCurrentLookupKey() {
         String datasourceType = DynamicDatasourceContextHolder.getDatasourceType();
-        LOG.info("当前数据源:{}",datasourceType);
+        if (datasourceType == null) {
+            LOG.info("使用默认数据源");
+        } else {
+            LOG.info("当前数据源:{}",datasourceType);
+        }
         return datasourceType;
     }
 }

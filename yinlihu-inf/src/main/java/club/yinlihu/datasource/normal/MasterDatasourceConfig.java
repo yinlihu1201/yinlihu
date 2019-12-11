@@ -27,9 +27,9 @@ public class MasterDatasourceConfig {
 	 * 数据源配置
 	 * @return
 	 */
-	@Bean(name="masterDatasource")
+	/*@Bean(name="masterDatasource")
 	@ConfigurationProperties(prefix = "spring.datasource.master")
-	@Primary
+	@Primary*/
 	public DataSource masterDatasource() {
 		return DataSourceBuilder.create().build();
 	}
@@ -40,8 +40,8 @@ public class MasterDatasourceConfig {
 	 * @return
 	 * @throws Exception
 	 */
-	@Bean(name = "masterSqlSessionFactory")
-	@Primary
+	/*@Bean(name = "masterSqlSessionFactory")
+	@Primary*/
 	public SqlSessionFactory masterSqlSessionFactory(@Qualifier("masterDatasource") DataSource dataSource) throws Exception{
 		SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
 		bean.setDataSource(dataSource);
@@ -66,8 +66,8 @@ public class MasterDatasourceConfig {
 	 * @param dataSource
 	 * @return
 	 */
-	@Bean(name = "masterSqlSessionTemplate")
-	@Primary
+	/*@Bean(name = "masterSqlSessionTemplate")
+	@Primary*/
 	public SqlSessionTemplate masterSqlSessionTemplate(@Qualifier("masterSqlSessionFactory") SqlSessionFactory sqlSessionFactory) {
 		return new SqlSessionTemplate(sqlSessionFactory);
 	}

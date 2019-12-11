@@ -20,16 +20,6 @@ import java.lang.reflect.Method;
 public class DynamicDatasourceAspect {
     private static final Logger LOG = LoggerFactory.getLogger(DynamicDatasourceAspect.class);
 
-    /*@Before("@annotation(dataSource)")
-    public void beforeSwitchDataSource(YinlihuDatasource dataSource) {
-        DynamicDatasourceContextHolder.setDatasourceType(dataSource.value());
-    }
-
-    @After("@annotation(YinlihuDatasource)")
-    public void afterSwitchDataSource() {
-        DynamicDatasourceContextHolder.clearDatasourceType();
-    }*/
-
     @Pointcut("execution(* club.yinlihu..mapper.*.*(..))")
     public void datasourcePoint(){}
 
@@ -39,11 +29,9 @@ public class DynamicDatasourceAspect {
             Object target = joinPoint.getTarget();
 
             // 类上切换数据源
-            Class<?> aClass = target.getClass();
-            YinlihuDatasource annotation = aClass.getAnnotation(YinlihuDatasource.class);
-            if (aClass.isAnnotationPresent(YinlihuDatasource.class)) {
-                YinlihuDatasource data = aClass.getAnnotation(YinlihuDatasource.class);
-                DynamicDatasourceContextHolder.setDatasourceType(data.value());
+            if (target.getClass().getInterfaces()[0].isAnnotationPresent(YinlihuDatasource.class)) {
+                YinlihuDatasource annotation = target.getClass().getInterfaces()[0].getAnnotation(YinlihuDatasource.class);
+                DynamicDatasourceContextHolder.setDatasourceType(annotation.value());
                 return;
             }
 

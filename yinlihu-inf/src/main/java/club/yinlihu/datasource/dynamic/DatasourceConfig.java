@@ -30,7 +30,8 @@ public class DatasourceConfig {
     @ConfigurationProperties(prefix = "spring.datasource.master")
     @Primary
     public DataSource masterDatasource() {
-        return DataSourceBuilder.create().build();
+        DataSource master = DataSourceBuilder.create().build();
+        return master;
     }
 
     /**
@@ -40,7 +41,8 @@ public class DatasourceConfig {
     @Bean(name="clusterDatasource")
     @ConfigurationProperties(prefix = "spring.datasource.cluster")
     public DataSource clusterDatasource() {
-        return DataSourceBuilder.create().build();
+        DataSource cluster = DataSourceBuilder.create().build();
+        return cluster;
     }
 
     /**
@@ -48,12 +50,12 @@ public class DatasourceConfig {
      * @return
      */
     @Bean(name = "dynamicDatasource")
-    public DataSource dynamicDatasource() {
+    public DataSource dynamicDatasource(@Qualifier("masterDatasource")DataSource masterDatasource, @Qualifier("clusterDatasource")DataSource clusterDatasource) {
         DynamicRoutingDatasource dynamicRoutingDatasource = new DynamicRoutingDatasource();
         //配置多数据源
         Map<Object, Object> dataSourceMap = new HashMap<>(3);
-        dataSourceMap.put(DatasourceType.MASTER.getType(), masterDatasource());
-        dataSourceMap.put(DatasourceType.CLUSTER.getType(), clusterDatasource());
+        dataSourceMap.put(DatasourceType.MASTER.getType(), masterDatasource);
+        dataSourceMap.put(DatasourceType.CLUSTER.getType(), clusterDatasource);
         // 将 master 数据源作为默认指定的数据源
         dynamicRoutingDatasource.setDefaultTargetDataSource(masterDatasource());
         // 将 master 和 slave 数据源作为指定的数据源
@@ -82,8 +84,8 @@ public class DatasourceConfig {
      * @return
      */
     @Bean(name = "transactionManager")
-    public PlatformTransactionManager transactionManager() {
-        DataSourceTransactionManager manager = new DataSourceTransactionManager(dynamicDatasource());
+    public PlatformTransactionManager transactionManager(@Qualifier("dynamicDatasource")DataSource dynamicDatasource) {
+        DataSourceTransactionManager manager = new DataSourceTransactionManager(dynamicDatasource);
         return manager;
     }
 
@@ -91,9 +93,9 @@ public class DatasourceConfig {
      * 配置事务的传播特性
      */
     @Bean(name = "txAdvice")
-    public TransactionInterceptor txAdvice(){
+    public TransactionInterceptor txAdvice(@Qualifier("transactionManager")PlatformTransactionManager transactionManager){
         TransactionInterceptor interceptor = new TransactionInterceptor();
-        interceptor.setTransactionManager(transactionManager());
+        interceptor.setTransactionManager(transactionManager);
         Properties transactionAttributes = new Properties();
         //使用transactionAttributes.setProperty()配置传播特性
         interceptor.setTransactionAttributes(transactionAttributes);
@@ -101,10 +103,10 @@ public class DatasourceConfig {
     }
 
     @Bean(name = "txAdviceAdvisor")
-    public Advisor txAdviceAdvisor() {
+    public Advisor txAdviceAdvisor(@Qualifier("txAdvice") TransactionInterceptor txAdvice) {
         AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
         String transactionExecution = "execution(* club.yinlihu..service.*.*(..))";
         pointcut.setExpression(transactionExecution);
-        return new DefaultPointcutAdvisor(pointcut, txAdvice());
+        return new DefaultPointcutAdvisor(pointcut, txAdvice);
     }
 }
