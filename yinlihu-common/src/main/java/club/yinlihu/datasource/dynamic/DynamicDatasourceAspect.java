@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
 
 /**
  * 动态数据源切面配置
+ * 最关键的在于 DynamicRoutingDatasource 这个类， 继承AbstractRoutingDataSource，可以切换数据源配置
  */
 @Aspect
 @Component
@@ -27,24 +28,22 @@ public class DynamicDatasourceAspect {
     public void before(JoinPoint joinPoint) {
         try {
             Object target = joinPoint.getTarget();
-
-            // 类上切换数据源
-            if (target.getClass().getInterfaces()[0].isAnnotationPresent(YinlihuDatasource.class)) {
-                YinlihuDatasource annotation = target.getClass().getInterfaces()[0].getAnnotation(YinlihuDatasource.class);
-                DynamicDatasourceContextHolder.setDatasourceType(annotation.value());
-                return;
-            }
-
             // 方法上切换数据源
             String method = joinPoint.getSignature().getName();
             Class<?>[] clazz = target.getClass().getInterfaces();
             Class<?>[] parameterTypes = ((MethodSignature) joinPoint.getSignature()).getMethod().getParameterTypes();
 
             Method m = clazz[0].getMethod(method, parameterTypes);
-            //如果方法上存在切换数据源的注解，则根据注解内容进行数据源切换
+            // 如果方法上存在切换数据源的注解，则根据注解内容进行数据源切换
             if (m != null && m.isAnnotationPresent(YinlihuDatasource.class)) {
                 YinlihuDatasource data = m.getAnnotation(YinlihuDatasource.class);
                 DynamicDatasourceContextHolder.setDatasourceType(data.value());
+            } else {
+                // 若方法上没有注解，查询是否有数据源配置
+                if (target.getClass().getInterfaces()[0].isAnnotationPresent(YinlihuDatasource.class)) {
+                    YinlihuDatasource annotation = target.getClass().getInterfaces()[0].getAnnotation(YinlihuDatasource.class);
+                    DynamicDatasourceContextHolder.setDatasourceType(annotation.value());
+                }
             }
         } catch (Exception e) {
             LOG.info("切换数据源异常", e);

@@ -15,7 +15,8 @@
 	   <module>../yinlihu-web</module>
 	   <module>../yinlihu-service</module>
 	   <module>../yinlihu-inf</module>
-	</modules>
+        <module>../yinlihu-common</module>
+    </modules>
 	
 	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
