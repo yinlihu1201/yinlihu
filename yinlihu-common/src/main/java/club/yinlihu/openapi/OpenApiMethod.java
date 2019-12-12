@@ -17,23 +17,18 @@ public class OpenApiMethod {
     public Class<?> getParamType() {
         return paramType;
     }
-
     public void setParamType(Class<?> paramType) {
         this.paramType = paramType;
     }
-
     public Method getMethod() {
         return method;
     }
-
     public void setMethod(Method method) {
         this.method = method;
     }
-
     public Object getInstance() {
         return instance;
     }
-
     public void setInstance(Object instance) {
         this.instance = instance;
     }

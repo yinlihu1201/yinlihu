@@ -1,6 +1,8 @@
 server:
     port: 80
     
+openapi:
+  log-service: defaultOpenApiLogService
 
 spring:
     datasource:

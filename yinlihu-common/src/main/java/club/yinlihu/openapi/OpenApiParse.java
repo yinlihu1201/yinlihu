@@ -1,6 +1,10 @@
 package club.yinlihu.openapi;
 
+import club.yinlihu.constants.CommonConstants;
+import club.yinlihu.entity.ResultMap;
 import club.yinlihu.exception.BizException;
+import club.yinlihu.exception.ErrorCode;
+import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -9,11 +13,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Set;
 
 /**
  * Open-Api方法解析
@@ -32,7 +32,6 @@ public class OpenApiParse implements BeanPostProcessor {
     @Autowired
     private OpenApiRepository openApiRepository;
 
-    private static javax.validation.Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
     /**
      * 初始化方法：将初始化的方法注入到仓库中
      * @param bean
@@ -67,10 +66,10 @@ public class OpenApiParse implements BeanPostProcessor {
     private void checkParam(Class<?> clazz, Method method){
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length == 0) {
-            throw new BizException("class " + clazz.getSimpleName() + ",method " + method.getName() + ", no parameter");
+            throw new BizException(clazz.getSimpleName() + "--" + method.getName() + ", no parameter");
         }
         if (parameterTypes.length > 1) {
-            throw new BizException("class " + clazz.getSimpleName() + ",method " + method.getName() + ", has more than one parameter");
+            throw new BizException(clazz.getSimpleName() + "--" + method.getName() + ", has more than one parameter");
         }
     }
 
@@ -82,7 +81,7 @@ public class OpenApiParse implements BeanPostProcessor {
     private void checkReturnParam(Class<?> clazz, Method method) {
         Class<?> returnType = method.getReturnType();
         if (!ResultMap.class.isAssignableFrom(returnType)) {
-            throw new BizException("class " + clazz.getSimpleName() + ",method " + method.getName() + ", return Type must be ResultMap.class");
+            throw new BizException(clazz.getSimpleName() + " return Type must be ResultMap.class");
         }
     }
 
@@ -90,51 +89,41 @@ public class OpenApiParse implements BeanPostProcessor {
      * 执行任务
      * @return
      */
-    public ResultMap excute(HttpServletRequest request, OpenApiRequestParam param){
-        LOG.info("request method {},param {}",methodName , data);
-
-        OpenMethod openMethod = methodMap.get(methodName);
-
-        // 方法名错误
-        if (openMethod == null) {
-            LOG.error("request method {} not found", methodName);
-            return SNCloudCallResult.fail("请求方法校验错误");
+    public ResultMap execute(HttpServletRequest request, OpenApiRequestParam param){
+        long start = System.currentTimeMillis();
+        OpenApiVersion version = OpenApiVersion.getVersion(param.getVersion());
+        if (version == null) {
+            return ResultMap.fail(ErrorCode.OPEN_API_VERSION_ERROR);
         }
+
+        OpenApiMethod openApi = openApiRepository.getOpenApi(version, param.getApi());
+        if (openApi == null) {
+            return ResultMap.fail(ErrorCode.OPEN_API_NOT_EXISTS_ERROR);
+        }
+
+        // TODO: 增加接口限流
+
+        LOG.info("request api class {} method {}",openApi.getInstance().getClass().getSimpleName(), openApi.getMethod().getName());
+        request.setAttribute(CommonConstants.OPEN_API_CLASS_NAME, openApi.getInstance().getClass().getSimpleName());
+        request.setAttribute(CommonConstants.OPEN_API_METHOD_NAME, openApi.getMethod().getName());
 
         // Json->Java校验
         Object businessData;
         try {
-            if (openMethod.getParamType().isAssignableFrom(String.class)) {
-                businessData = data;
-            } else {
-                // 平台标识
-                request.setAttribute("sourcePlatform", snCloudApiJobRequestParam.getPlatform());
-                businessData = JSONObject.parseObject(data, openMethod.getParamType());
-                // businessData = objectMapper.readValue(data, openMethod.getParamType());
-            }
+            businessData = JSONObject.parseObject(param.getData(), openApi.getParamType());
         } catch (Exception e) {
-            LOG.error("requestParamStr {} parse exception,", data, e);
-            return SNCloudCallResult.fail("您传入的业务参数有误,参数为json对象或者字符串");
-        }
-
-        // 统一必填校验
-        Set<ConstraintViolation<Object>> violations = validator.validate(businessData);
-        if (violations != null && violations.size() > 0) {
-            return SNCloudCallResult.fail(violations.iterator().next().getMessage());
+            LOG.error("requestParamStr {} parse exception,", param.getData(), e);
+            return ResultMap.fail(ErrorCode.OPEN_API_PARAM_ERROR);
         }
 
         // 反射：调用方法
-        Method method = openMethod.getMethod();
+        Method method = openApi.getMethod();
         try {
             method.setAccessible(true);
-            return (SNCloudCallResult) method.invoke(openMethod.getInstance(), businessData);
-        } catch (IllegalAccessException e) {
-            LOG.error("method invoke exception {},", e.getCause(), e);
-            return SNCloudCallResult.fail("业务方法执行异常");
-        } catch (InvocationTargetException e) {
-            LOG.error("method invoke exception {},", e.getCause(), e);
-            return SNCloudCallResult.fail("业务方法执行异常");
+            return (ResultMap) method.invoke(openApi.getInstance(), businessData);
+        }  catch (Exception e) {
+            LOG.error("method invoke exception!", e);
+            return ResultMap.fail(ErrorCode.BIZ_ERROR);
         }
-        return ResultMap.ok();
     }
 }

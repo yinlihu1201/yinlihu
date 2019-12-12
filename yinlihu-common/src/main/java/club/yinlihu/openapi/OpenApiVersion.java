@@ -1,5 +1,7 @@
 package club.yinlihu.openapi;
 
+import com.alibaba.druid.util.StringUtils;
+
 /**
  * openApi版本
  */
@@ -14,5 +16,14 @@ public enum OpenApiVersion {
     }
     public String getVersion() {
         return version;
+    }
+
+    public static OpenApiVersion getVersion(String version) {
+        for (OpenApiVersion v :OpenApiVersion.values()) {
+            if (StringUtils.equals(v.getVersion(),version)) {
+                return v;
+            }
+        }
+        return null;
     }
 }
