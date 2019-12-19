@@ -17,6 +17,7 @@
 	   <module>../yinlihu-service</module>
 	   <module>../yinlihu-inf</module>
         <module>../yinlihu-common</module>
+        <module>../yinlihu-schedule</module>
     </modules>
 	
 	<properties>
