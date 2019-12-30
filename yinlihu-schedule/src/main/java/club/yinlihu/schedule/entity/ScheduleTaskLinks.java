@@ -7,25 +7,25 @@ public class ScheduleTaskLinks {
     /**
      * 前置任务type
      */
-    private String from;
+    private ScheduleTask from;
     /**
      * 后续触发任务type
      */
-    private String to;
+    private ScheduleTask to;
 
-    public String getFrom() {
+    public ScheduleTask getFrom() {
         return from;
     }
 
-    public void setFrom(String from) {
+    public void setFrom(ScheduleTask from) {
         this.from = from;
     }
 
-    public String getTo() {
+    public ScheduleTask getTo() {
         return to;
     }
 
-    public void setTo(String to) {
+    public void setTo(ScheduleTask to) {
         this.to = to;
     }
 }

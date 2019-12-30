@@ -1,13 +1,13 @@
 package club.yinlihu.shcedule;
 
-import club.yinlihu.schedule.persist.ScheduleReader;
+import club.yinlihu.schedule.persist.SchedulePersist;
 import org.junit.Test;
 
 public class DemoTest {
 
     @Test
     public void demo() {
-        ScheduleReader read = new ScheduleReader();
+        SchedulePersist read = new SchedulePersist();
         System.out.println(read.readSchedule());
     }
 }

@@ -1,7 +1,6 @@
 import club.yinlihu.schedule.entity.ScheduleEntity;
 import club.yinlihu.schedule.entity.ScheduleTask;
-import club.yinlihu.schedule.persist.ScheduleReader;
-import club.yinlihu.schedule.persist.ScheduleWrite;
+import club.yinlihu.schedule.persist.SchedulePersist;
 import com.alibaba.fastjson.JSONObject;
 import org.junit.Test;
 
@@ -12,7 +11,7 @@ public class DemoTest {
 
     @Test
     public void demo() {
-        ScheduleReader read = new ScheduleReader();
+        SchedulePersist read = new SchedulePersist();
         System.out.println(JSONObject.toJSONString(read.readSchedule()));
     }
 
@@ -23,6 +22,6 @@ public class DemoTest {
 
         taskList.add(task);
         ScheduleEntity se = new ScheduleEntity("schedule1", "调度1", taskList);
-        ScheduleWrite.saveSchedule(se);
+        SchedulePersist.saveSchedule(se);
     }
 }
