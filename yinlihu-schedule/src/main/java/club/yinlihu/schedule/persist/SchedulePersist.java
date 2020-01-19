@@ -27,6 +27,8 @@ public class SchedulePersist {
     protected static List<ScheduleEntity> scheduleEntities;
 
     public static Map<String, ScheduleEntity> scheduleEntityMap = new HashMap<String, ScheduleEntity>();
+    // 配置上下文信息
+    public static Map<String, Map<String, Object>> processContextMap = new HashMap<String, Map<String, Object>>();
 
     public static void init() {
         List<ScheduleTask> taskList = new ArrayList<ScheduleTask>();
@@ -79,11 +81,42 @@ public class SchedulePersist {
 
     }
 
-    public static ScheduleEntity readScheduleEntity(String taskName) {
-        ScheduleEntity scheduleEntity = scheduleEntityMap.get(taskName);
+    public static ScheduleEntity readScheduleEntity(String scheduleName) {
+        ScheduleEntity scheduleEntity = scheduleEntityMap.get(scheduleName);
         if (scheduleEntity == null) {
-            throw new ScheduleExcetion("");
+            throw new ScheduleExcetion("schedule not exist!");
         }
         return scheduleEntity;
+    }
+
+    /**
+     * 保存上下文信息
+     */
+    public static void saveProcessContext(String configId, Map<String, Object> context){
+        if (context == null) {
+            throw new ScheduleExcetion("process context is null!");
+        }
+        processContextMap.put(configId, context);
+    }
+
+    /**
+     * 获取配置上下文信息
+     * @param configId
+     * @return
+     */
+    public static Map<String, Object> getProcessContext(String configId){
+        Map<String, Object> context = processContextMap.get(configId);
+        if (context == null) {
+            context = new HashMap<String, Object>();
+        }
+        return context;
+    }
+
+    /**
+     * 删除上下文信息
+     * @param configId
+     */
+    public static void delProcessContext(String configId){
+        processContextMap.remove(configId);
     }
 }
