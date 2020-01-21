@@ -22,9 +22,9 @@ public class ScheduleEntity {
      */
     private List<ScheduleTask> scheduleTask;
     /**
-     * 调度任务执行关系
+     * 调度任务执行关系：可以不用关系，执行按照提供的顺序即可
      */
-    private List<ScheduleTaskLinks> scheduleTaskLinks;
+    // private List<ScheduleTaskLinks> scheduleTaskLinks;
 
     public ScheduleEntity(String scheduleName, String scheduleDesc, List<ScheduleTask> scheduleTask) {
         if (StringUtils.isBlank(scheduleName)) {
@@ -84,11 +84,11 @@ public class ScheduleEntity {
         this.scheduleTask = scheduleTask;
     }
 
-    public List<ScheduleTaskLinks> getScheduleTaskLinks() {
+    /*public List<ScheduleTaskLinks> getScheduleTaskLinks() {
         return scheduleTaskLinks;
     }
 
     public void setScheduleTaskLinks(List<ScheduleTaskLinks> scheduleTaskLinks) {
         this.scheduleTaskLinks = scheduleTaskLinks;
-    }
+    }*/
 }

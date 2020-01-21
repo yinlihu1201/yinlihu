@@ -45,9 +45,9 @@ public class SchedulePersist {
 
         ScheduleEntity se = new ScheduleEntity("schedule1", "调度1", taskList);
 
-        List<ScheduleTaskLinks> linkList = new ArrayList<ScheduleTaskLinks>();
+        /*List<ScheduleTaskLinks> linkList = new ArrayList<ScheduleTaskLinks>();
         linkList.add(links);
-        se.setScheduleTaskLinks(linkList);
+        se.setScheduleTaskLinks(linkList);*/
 
         scheduleEntities = new ArrayList<ScheduleEntity>();
         scheduleEntities.add(se);
