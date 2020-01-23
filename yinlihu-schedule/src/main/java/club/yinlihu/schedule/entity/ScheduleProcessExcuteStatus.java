@@ -29,6 +29,14 @@ public class ScheduleProcessExcuteStatus {
         return null;
     }
 
+    /**
+     * 是否是最后一步
+     * @return
+     */
+    public boolean isLastProcess(){
+        return (processList.size() - 1) == processList.indexOf(currentProcess);
+    }
+
     // 当前步骤
     private String currentProcess;
     // 执行状态
@@ -54,6 +62,8 @@ public class ScheduleProcessExcuteStatus {
 
         this.scheduleName = scheduleName;
         this.processList = processList;
+        this.currentProcess = processList.get(0);
+        this.processStatus = ScheduleExcuteStatusEnum.FAIL.getCode();
     }
 
     public String getCurrentProcess() {

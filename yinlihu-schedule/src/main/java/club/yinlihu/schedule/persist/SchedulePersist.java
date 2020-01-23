@@ -33,21 +33,16 @@ public class SchedulePersist {
     public static void init() {
         List<ScheduleTask> taskList = new ArrayList<ScheduleTask>();
 
-        ScheduleTask task = new ScheduleTask("task1","任务1");
+        ScheduleTask task = new ScheduleTask("DemoProcess","任务1");
         taskList.add(task);
 
-        ScheduleTask task2 = new ScheduleTask("task2","任务2");
+        ScheduleTask task2 = new ScheduleTask("Demo2Process","任务2");
         taskList.add(task2);
 
-        ScheduleTaskLinks links = new ScheduleTaskLinks();
-        links.setFrom(task);
-        links.setTo(task2);
+        ScheduleTask task3 = new ScheduleTask("Demo3Process","任务3");
+        taskList.add(task3);
 
         ScheduleEntity se = new ScheduleEntity("schedule1", "调度1", taskList);
-
-        /*List<ScheduleTaskLinks> linkList = new ArrayList<ScheduleTaskLinks>();
-        linkList.add(links);
-        se.setScheduleTaskLinks(linkList);*/
 
         scheduleEntities = new ArrayList<ScheduleEntity>();
         scheduleEntities.add(se);

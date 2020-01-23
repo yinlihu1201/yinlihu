@@ -6,7 +6,8 @@ package club.yinlihu.schedule.entity;
 public enum ScheduleExcuteStatusEnum {
     SUCESS("1", "成功"),
     FAIL("2","失败"),
-    STOP("3","暂停");
+    STOP("3","暂停"),
+    EXCUTING("4","执行中");
 
     private String code;
     private String desc;

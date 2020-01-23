@@ -1,16 +1,16 @@
 package club.yinlihu.schedule.execute;
 
-import club.yinlihu.schedule.entity.ScheduleEntity;
+import club.yinlihu.schedule.entity.ScheduleConstant;
 import club.yinlihu.schedule.entity.ScheduleExcuteStatusEnum;
 import club.yinlihu.schedule.entity.ScheduleProcessExcuteStatus;
-import club.yinlihu.schedule.entity.ScheduleTask;
 import club.yinlihu.schedule.persist.SchedulePersist;
+import club.yinlihu.schedule.persist.ScheduleQueue;
 import club.yinlihu.schedule.persist.ScheduleRegister;
 import club.yinlihu.schedule.process.ScheduleProcess;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,41 +18,55 @@ import java.util.Map;
  */
 public class ScheduleExcute {
 
-    private static String EXCUTE_STATUS = "excute_status";
+    private static final Logger LOG = LoggerFactory.getLogger(ScheduleExcute.class);
+
+    private static ScheduleQueue scheduleQueue = new ScheduleQueue();
 
     /**
      * 执行任务，自动获取信息触发下一步
      * @param configId
      */
-    public void excute(String configId, String scheduleName) {
+    public static void excute(String configId) {
         Map<String, Object> processContext = SchedulePersist.getProcessContext(configId);
-        ScheduleProcessExcuteStatus excuteStatus = (ScheduleProcessExcuteStatus)processContext.get(EXCUTE_STATUS);
-        if (excuteStatus == null) {
-            excuteStatus = initScheduleProcessExcuteStatus(scheduleName);
-        }
+        ScheduleProcessExcuteStatus excuteStatus = (ScheduleProcessExcuteStatus)processContext.get(ScheduleConstant.EXCUTE_STATUS);
+        excuteStatus.setProcessStatus(ScheduleExcuteStatusEnum.EXCUTING.getCode());
+        // 更新数据
+        SchedulePersist.saveProcessContext(configId, processContext);
 
         String excuteProcess;
         // 只有失败和初始化的时候执行下一步
-        if (excuteStatus.getProcessStatus() != null
-                && !StringUtils.equals(excuteStatus.getProcessStatus(), ScheduleExcuteStatusEnum.FAIL.getCode())) {
-            excuteProcess = excuteStatus.getNextProcess();
-        } else {
+        if (StringUtils.equals(excuteStatus.getProcessStatus(), ScheduleExcuteStatusEnum.FAIL.getCode())) {
             excuteProcess = excuteStatus.getCurrentProcess();
+        } else {
+            excuteProcess = excuteStatus.getNextProcess();
         }
 
+        ScheduleExcuteStatusEnum excuteResult = excuteProcess(configId, excuteProcess);
 
-    }
+        /*
+        成功触发下一个任务
+        失败停止任务触发
+        暂停停止任务触发
+         */
+        String codeResult = excuteResult.getCode();
+        excuteStatus.setProcessStatus(codeResult);
+        excuteStatus.setCurrentProcess(excuteProcess);
+        processContext.put(ScheduleConstant.EXCUTE_STATUS, excuteStatus);
 
-    /**
-     * 初始化执行状态数据
-     * @return
-     */
-    private ScheduleProcessExcuteStatus initScheduleProcessExcuteStatus(String scheduleName){
-        ScheduleProcessExcuteStatus excuteStatus = new ScheduleProcessExcuteStatus(scheduleName);
-        List<String> processList = excuteStatus.getProcessList();
+        // 保存上下文信息
+        SchedulePersist.saveProcessContext(configId, processContext);
 
-        excuteStatus.setCurrentProcess(processList.get(0));
-        return excuteStatus;
+        // 如果成功了，执行成功执行，最后一个任务不管是暂停还是成功，只要不是失败，都算成功
+        if (excuteStatus.isLastProcess()
+                && !StringUtils.equalsIgnoreCase(excuteStatus.getProcessStatus(), ScheduleExcuteStatusEnum.FAIL.getCode())) {
+            // TODO：上下文信息以后需要存放到某个地方，用于以后读取
+            // SchedulePersist.delProcessContext(configId);
+            // TODO：以后得实现依赖任务触发
+        } else {
+            // 如果是其他，则再次下发
+            // 下发任务
+            scheduleQueue.add(configId);
+        }
     }
 
     /**
@@ -60,8 +74,13 @@ public class ScheduleExcute {
      * @param processName
      * @param configId
      */
-    public ScheduleExcuteStatusEnum excuteProcess(String configId, String processName){
-        ScheduleProcess scheduleProcess = ScheduleRegister.getProcessInstance(processName);
-        return scheduleProcess.excute(configId);
+    public static ScheduleExcuteStatusEnum excuteProcess(String configId, String processName){
+        try {
+            ScheduleProcess scheduleProcess = ScheduleRegister.getProcessInstance(processName);
+            return scheduleProcess.excute(configId);
+        } catch (Exception e) {
+            LOG.error("excute process exception!", e);
+            return ScheduleExcuteStatusEnum.FAIL;
+        }
     }
 }
