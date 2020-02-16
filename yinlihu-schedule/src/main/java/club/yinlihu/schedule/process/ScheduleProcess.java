@@ -1,7 +1,7 @@
 package club.yinlihu.schedule.process;
 
 import club.yinlihu.schedule.entity.ScheduleExcuteStatusEnum;
-import club.yinlihu.schedule.persist.ScheduleRegister;
+import club.yinlihu.schedule.exception.ScheduleExcetion;
 import org.reflections.Reflections;
 
 import java.util.Set;
@@ -11,12 +11,28 @@ import java.util.Set;
  */
 public abstract class ScheduleProcess {
 
-    static {
-        Reflections reflections = new Reflections("club.yinlihu.schedule.process.impl");
-        Set<Class<? extends ScheduleProcess>> classSet = reflections.getSubTypesOf(ScheduleProcess.class);
-        for (Class clazz : classSet) {
-            ScheduleRegister.register(clazz);
+    /**
+     * 包初始化位置:如果没有用spring这种进行类的初始化的话，调用此方法进行初始化
+     * 但是如果使用了spring进行对象的管理，则此类不进行调用
+     * @param schedulePackagePath 指定任务调度的代码位置
+     */
+    public static void init(String schedulePackagePath) {
+        try {
+            Reflections reflections = new Reflections(schedulePackagePath);
+            Set<Class<? extends ScheduleProcess>> classSet = reflections.getSubTypesOf(ScheduleProcess.class);
+            for (Class clazz : classSet) {
+                clazz.newInstance();
+            }
+        } catch (ScheduleExcetion se) {
+            throw se;
+        } catch (Exception e) {
+            throw new ScheduleExcetion("init process error!");
         }
+    }
+
+    protected ScheduleProcess(){
+        Class<? extends ScheduleProcess> aClass = this.getClass();
+        ScheduleRegister.register(aClass, this);
     }
 
     /**

@@ -1,8 +1,8 @@
 package club.yinlihu.schedule.entity;
 
 import club.yinlihu.schedule.exception.ScheduleExcetion;
+import club.yinlihu.schedule.init.ScheduleInitialization;
 import club.yinlihu.schedule.persist.SchedulePersist;
-import com.alibaba.fastjson.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,8 @@ import java.util.List;
  * 调度实体类
  */
 public class ScheduleProcessExcuteStatus {
+
+    private SchedulePersist persist = ScheduleInitialization.getInstance().getSchedule();
 
     /**
      * 获取下一个步骤类型
@@ -29,6 +31,11 @@ public class ScheduleProcessExcuteStatus {
         return null;
     }
 
+    public String getLastProcess(){
+        String process = processList.get(processList.size() - 1);
+        return process;
+    }
+
     /**
      * 是否是最后一步
      * @return
@@ -41,8 +48,6 @@ public class ScheduleProcessExcuteStatus {
     private String currentProcess;
     // 执行状态
     private String processStatus;
-    // 执行日志: 放在其他地方存放
-    // private String excuteLog;
     // 任务名称
     private String scheduleName;
     // 执行任务列表
@@ -52,8 +57,8 @@ public class ScheduleProcessExcuteStatus {
     // 状态初始化
     public ScheduleProcessExcuteStatus(String scheduleName) {
         // 查询任务执行到的步骤
-        ScheduleEntity scheduleEntity = SchedulePersist.readScheduleEntity(scheduleName);
-        List<ScheduleTask> scheduleTaskList = scheduleEntity.getScheduleTask();
+        Schedule schedule = persist.getSchedule(scheduleName);
+        List<ScheduleTask> scheduleTaskList = schedule.getScheduleTask();
 
         List<String> processList = new ArrayList<String>();
         for (ScheduleTask st : scheduleTaskList) {
@@ -63,7 +68,7 @@ public class ScheduleProcessExcuteStatus {
         this.scheduleName = scheduleName;
         this.processList = processList;
         this.currentProcess = processList.get(0);
-        this.processStatus = ScheduleExcuteStatusEnum.FAIL.getCode();
+        this.processStatus = ScheduleExcuteStatusEnum.WAITSTART.getCode();
     }
 
     public String getCurrentProcess() {
@@ -81,14 +86,6 @@ public class ScheduleProcessExcuteStatus {
     public void setProcessStatus(String processStatus) {
         this.processStatus = processStatus;
     }
-
-    /*public String getExcuteLog() {
-        return excuteLog;
-    }
-
-    public void setExcuteLog(String excuteLog) {
-        this.excuteLog = excuteLog;
-    }*/
 
     public List<String> getProcessList() {
         return processList;

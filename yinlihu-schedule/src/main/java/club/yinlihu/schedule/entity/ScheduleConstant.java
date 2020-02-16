@@ -5,4 +5,6 @@ package club.yinlihu.schedule.entity;
  */
 public interface ScheduleConstant {
     String EXCUTE_STATUS = "excute_status";
+
+    String EXCUTE_FACTORY_SCAN_PACKAGE = "club.yinlihu.schedule.factory.excutestatus.impl";
 }

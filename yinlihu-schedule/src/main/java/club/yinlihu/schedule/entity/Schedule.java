@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * 调度实体类
  */
-public class ScheduleEntity {
+public class Schedule {
     /**
      * 调度名称：应该是唯一的
      */
@@ -21,12 +21,13 @@ public class ScheduleEntity {
      * 调度任务
      */
     private List<ScheduleTask> scheduleTask;
+
     /**
-     * 调度任务执行关系：可以不用关系，执行按照提供的顺序即可
+     * 调度方式：即自动流程，触发流程等
      */
-    // private List<ScheduleTaskLinks> scheduleTaskLinks;
+    private String scheduleType;
 
-    public ScheduleEntity(String scheduleName, String scheduleDesc, List<ScheduleTask> scheduleTask) {
+    public Schedule(String scheduleName, String scheduleDesc, List<ScheduleTask> scheduleTask, ScheduleTypeEnum scheduleType) {
         if (StringUtils.isBlank(scheduleName)) {
             throw new RuntimeException("调度名称不可为空！");
         }
@@ -39,26 +40,8 @@ public class ScheduleEntity {
         this.scheduleName = scheduleName;
         this.scheduleDesc = scheduleDesc;
         this.scheduleTask = scheduleTask;
+        this.scheduleType = scheduleType.getType();
     }
-
-    /*public ScheduleEntity(String scheduleName, String scheduleDesc, List<ScheduleTask> scheduleTask, List<ScheduleTaskLinks> scheduleTaskLinks) {
-        if (StringUtils.isBlank(scheduleName)) {
-            throw new RuntimeException("调度名称不可为空！");
-        }
-        if (StringUtils.isBlank(scheduleDesc)) {
-            throw new RuntimeException("调度描述不可为空！");
-        }
-        if (CollectionUtils.isEmpty(scheduleTask)) {
-            throw new RuntimeException("调度任务不可为空！");
-        }
-        if (CollectionUtils.isEmpty(scheduleTaskLinks)) {
-            throw new RuntimeException("调度任务关联不可为空！");
-        }
-        this.scheduleName = scheduleName;
-        this.scheduleDesc = scheduleDesc;
-        this.scheduleTask = scheduleTask;
-        this.scheduleTaskLinks = scheduleTaskLinks;
-    }*/
 
     public String getScheduleName() {
         return scheduleName;
@@ -84,11 +67,11 @@ public class ScheduleEntity {
         this.scheduleTask = scheduleTask;
     }
 
-    /*public List<ScheduleTaskLinks> getScheduleTaskLinks() {
-        return scheduleTaskLinks;
+    public String getScheduleType() {
+        return scheduleType;
     }
 
-    public void setScheduleTaskLinks(List<ScheduleTaskLinks> scheduleTaskLinks) {
-        this.scheduleTaskLinks = scheduleTaskLinks;
-    }*/
+    public void setScheduleType(String scheduleType) {
+        this.scheduleType = scheduleType;
+    }
 }

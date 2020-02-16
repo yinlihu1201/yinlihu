@@ -1,17 +1,10 @@
-package club.yinlihu.schedule.persist;
+package club.yinlihu.schedule.process;
 
-import club.yinlihu.schedule.entity.ScheduleEntity;
-import club.yinlihu.schedule.entity.ScheduleTask;
-import club.yinlihu.schedule.entity.ScheduleTaskLinks;
 import club.yinlihu.schedule.exception.ScheduleExcetion;
-import club.yinlihu.schedule.process.ScheduleProcess;
-import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,17 +19,16 @@ public class ScheduleRegister {
      * 注册
      * @param <T>
      */
-    public static <T> void register(Class clazz) {
+    public static <T> void register(Class clazz, ScheduleProcess scheduleProcess) {
         String className = clazz.getSimpleName();
         if (processMap.get(className) != null) {
             throw new ScheduleExcetion(className + " repeat register schedule, please check your code!");
         }
         try {
-            processMap.put(className, (ScheduleProcess)clazz.newInstance());
-        } catch (InstantiationException e) {
-            throw new ScheduleExcetion("new instance fail!",e);
-        } catch (IllegalAccessException e) {
-            throw new ScheduleExcetion("new instance fail!",e);
+            LOG.info("register class className {}", className);
+            processMap.put(className, scheduleProcess);
+        } catch (Exception e) {
+            throw new ScheduleExcetion("register instance fail!",e);
         }
     }
 
